@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<block>
+  <name>exchange</name>
+  <key>fsmac_exchange</key>
+  <category>fsmac</category>
+  <import>import fsmac</import>
+  <make>fsmac.exchange()</make>
+	<sink>
+		<name>dec in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>app in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>mac in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	
+	<sink>
+		<name>p1_mac in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>p2_mac in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>p1_app in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>p2_app in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+<!--	<sink>
+		<name>p1_ctrl in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>p2_ctrl in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink> -->
+	
+	
+	<source>
+		<name>app out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>mac out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>p1_mac out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>p2_mac out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>p1_app out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>p2_app out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+<!--	<source>
+		<name>p1_ctrl out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>p2_ctrl out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source> -->
+</block>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<block>
+  <name>CSMA</name>
+  <key>fsmac_csma</key>
+  <category>fsmac</category>
+  <import>import fsmac</import>
+  <make>fsmac.csma($mac_addr, $dest_node, $debug)</make>
+ 	<param>
+		<name>Debug</name>
+		<key>debug</key>
+		<value>False</value>
+		<type>bool</type>
+
+		<option>
+			<name>Enable</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Disable</name>
+			<key>False</key>
+		</option>
+	</param>
+	
+	<param>
+		<name>MAC ID</name>
+		<key>mac_addr</key>
+		<value>0</value>
+		<type>int</type>
+	</param>
+
+	<param>
+		<name>Destination Node</name>
+		<key>dest_node</key>
+		<value>1</value>
+		<type>int</type>
+	</param>
+	
+	<sink>
+		<name>pdu in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>app in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+    <sink>
+		<name>cs in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>ctrl in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<source>
+		<name>pdu out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>app out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<source>
+		<name>ctrl out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+	<doc>
+			Internal addresses and indexes for tests
+						
+			ID   Mac Address
+			0 -> 65,232
+			1 -> 66,232
+			2 -> 67,232
+			3 -> 68,232
+			
+	</doc>
+</block>

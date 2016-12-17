@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<block>
+  <name>Latency Sensor</name>
+  <key>fsmac_latency_sensor</key>
+  <category>fsmac</category>
+  <import>import fsmac</import>
+  <make>fsmac.latency_sensor($is_coord)</make>  
+  <param>
+		<name>Type</name>
+		<key>is_coord</key>
+		<value>False</value>
+		<type>bool</type>
+
+		<option>
+			<name>Coordinator</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Normal</name>
+			<key>False</key>
+		</option>
+	</param>
+	<sink>
+		<name>pdu in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<source>
+		<name>dec out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+</block>

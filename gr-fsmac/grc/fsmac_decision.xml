@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<block>
+  <name>Decision</name>
+  <key>fsmac_decision</key>
+  <category>fsmac</category>
+  <import>import fsmac</import>
+  <make>fsmac.decision($is_coord)</make>
+  	<param>
+		<name>Type</name>
+		<key>is_coord</key>
+		<value>False</value>
+		<type>bool</type>
+
+		<option>
+			<name>Coordinator</name>
+			<key>True</key>
+		</option>
+		<option>
+			<name>Normal</name>
+			<key>False</key>
+		</option>
+	</param>
+	<sink>
+		<name>sens1 in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<sink>
+		<name>sens2 in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<source>
+		<name>troca out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+</block>

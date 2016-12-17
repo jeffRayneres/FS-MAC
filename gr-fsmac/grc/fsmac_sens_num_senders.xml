@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<block>
+  <name>Num Senders Sensor</name>
+  <key>fsmac_sens_num_senders</key>
+  <category>fsmac</category>
+  <import>import fsmac</import>
+  <make>fsmac.sens_num_senders()</make>
+	<sink>
+		<name>pdu in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
+	<source>
+		<name>dec out</name>
+		<type>message</type>
+		<optional>1</optional>
+	</source>
+</block>
