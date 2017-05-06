@@ -276,56 +276,36 @@ class decision(gr.sync_block):
         return adaptability_degree
 
     def senders_function(self, x):
-		if x >= 0 and x <= 1:
-		  low_pert = 100
-		elif x > 1 and x < 2:
-		  low_pert = -100*x  + 200
-		else:
-		  low_pert = 0
+        low_pert = 0;
+        hight_pert = 0;
 
-		if x >= 0 and x <= 1:
-		  hight_pert = 0
-		elif x > 1 and x < 2:
-		  hight_pert = 100*x - 100
-		else:
-		  hight_pert = 100
+		# if x >= 0 and x <= 1:
+		#   low_pert = 100
+		# elif x > 1 and x < 2:
+		#   low_pert = -100*x  + 200
+		# else:
+		#   low_pert = 0
+        #
+		# if x >= 0 and x <= 1:
+		#   hight_pert = 0
+		# elif x > 1 and x < 2:
+		#   hight_pert = 100*x - 100
+		# else:
+		#   hight_pert = 100
 
-        # if x == 1:
-        #     low_pert = 100
-        # elif x > 1 and x <= 6:
-        #     low_pert = -20*x + 120
-        # elif x >= 6:
-        #     low_pert = 0
-        #
-        # if x == 1:
-        #     hight_pert = 0
-        # elif x > 1 and x <= 6:
-        #     hight_pert = 20*x - 20
-        # elif x > 6:
-        #     hight_pert = 100
+        if x >= 0 and x <= 2:
+            low_pert = 100
+        elif x > 2 and x < 3:
+            low_pert = -100*x + 300
+        else:
+            low_pert = 0
 
-        # if x >= 1 and x <= 7:
-        #     low_pert = -16.6667*x  + 116.6667
-        #
-        # if x >= 1 and x <= 7:
-        #     hight_pert = 16.6667 *x - 16.6667
-
-        # low_pert = 0;
-        # hight_pert = 0;
-        #
-        # if x <= 3:
-        #     low_pert = 100
-        # elif x > 3 and x <= 5:
-        #     low_pert = -50*x + 250
-        # elif x >= 5:
-        #     low_pert = 0
-        #
-        # if x >= 1 and x <= 3:
-        #     hight_pert = 0
-        # elif x > 3 and x <= 5:
-        #     hight_pert = 50*x - 150
-        # elif x > 5:
-        #     hight_pert = 100
+        if x >= 0 and x <= 2:
+            hight_pert = 0
+        elif x > 2 and x < 3:
+            hight_pert = 100*x - 200
+        else:
+            hight_pert = 100
 
         return [low_pert, hight_pert]
 
@@ -333,75 +313,64 @@ class decision(gr.sync_block):
         low_pert = 0;
         hight_pert = 0;
 
-        if self.active_protocol == 1:
-            if x <= 13:
+        # if active_protocol == 1:
+        #     if x >= 0 and x <= 20:
+        #         low_pert = 100
+        #     elif x > 20 and x < 40:
+        #         low_pert = -5*x  + 200
+        #     else:
+        #         low_pert = 0
+        #
+        #     if x >= 0 and x <= 20:
+        #         hight_pert = 0
+        #     elif x > 20 and x < 40:
+        #         hight_pert = 5*x - 100
+        #     else:
+        #         hight_pert = 100
+        #
+        # elif active_protocol == 2:
+        #     if x >= 0 and x <= 20:
+        #         low_pert = 100
+        #     elif x > 20 and x < 25:
+        #         low_pert = -20*x  + 500
+        #     else:
+        #         low_pert = 0
+        #
+        #     if x >= 0 and x <= 20:
+        #         hight_pert = 0
+        #     elif x > 20 and x < 25:
+        #         hight_pert = 20*x - 400
+        #     else:
+        #         hight_pert = 100
+
+        if active_protocol == 1:
+            if x >= 0 and x <= 35:
                 low_pert = 100
+            elif x > 35 and x < 55:
+                low_pert = -5*x  + 275
             else:
                 low_pert = 0
 
-            if x <= 13:
+            if x >= 0 and x <= 35:
                 hight_pert = 0
+            elif x > 35 and x < 55:
+                hight_pert = 5*x - 175
             else:
                 hight_pert = 100
 
-        elif self.active_protocol == 2:
-            if x <= 13:
+        elif active_protocol == 2:
+            if x >= 0 and x <= 23:
                 low_pert = 100
+            elif x > 23 and x < 26:
+                low_pert = -33.33334*x  + 866.6667
             else:
                 low_pert = 0
 
-            if x <= 13:
+            if x >= 0 and x <= 23:
                 hight_pert = 0
+            elif x > 23 and x < 26:
+                hight_pert = 33.33334*x - 766.6667
             else:
                 hight_pert = 100
-
-        # if self.active_protocol == 1:
-        #     if x <= 17:
-        #         low_pert = 100
-        #     elif x > 17 and x <= 80:
-        #         low_pert = -1.5873*x  + 126.9841
-        #     elif x >= 80:
-        #         low_pert = 0
-        #
-        #     if x <= 17:
-        #         hight_pert = 0
-        #     elif x > 17 and x <= 80:
-        #         hight_pert = 1.5873*x - 26.9841
-        #     elif x > 80:
-        #         hight_pert = 100
-        #
-        # elif self.active_protocol == 2:
-        #     if x <= 17:
-        #         low_pert = 100
-        #     elif x > 17 and x <= 37:
-        #         low_pert = -5*x  + 185
-        #     elif x >= 37:
-        #         low_pert = 0
-        #
-        #     if x <= 17:
-        #         hight_pert = 0
-        #     elif x > 17 and x <= 37:
-        #         hight_pert = 5*x - 85
-        #     elif x > 37:
-        #         hight_pert = 100
-
-
-        # low_pert = 0;
-        # hight_pert = 0;
-        #
-        # if x > 0 and x < 11:
-        #     low_pert = 100
-        # elif x >= 11 and x <= 65:
-        #     low_pert = -1.82*x  + 118.18
-        # elif x > 65:
-        #     low_pert = 0
-        #
-        # if x > 0 and x < 45:
-        #     hight_pert = 0
-        # elif x >= 45 and x < 65:
-        #     hight_pert = 5*x - 225
-        # elif x > 65:
-        #     hight_pert = 100
-
 
         return [low_pert, hight_pert]
