@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2016 <Jefferson Rayneres Silva Cordeiro {jeff@dcc.ufmg.br} - DCC/UFMG>.
+ * Copyright 2016 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,10 +59,12 @@ class sens_num_senders_impl : public sens_num_senders{
     }
 
     void waitSendingTime() {
+//        printf("Contagem iniciada\n");
         long int timeToWait = 5000;
         boost::posix_time::millisec workTime(timeToWait);
         boost::this_thread::sleep(workTime);
         sendValueToDecision = true;
+//        printf("Tempo esgotado\n");
     }
     
     void pdu_in(pmt::pmt_t msg) {
@@ -70,6 +72,7 @@ class sens_num_senders_impl : public sens_num_senders{
             int numSenders = sendersSet.size();
             pmt::pmt_t numSenders_pmt = pmt::from_uint64(numSenders);
             message_port_pub(pmt::mp("dec out"), numSenders_pmt);
+//            printf("Limou lista\n");
             sendersSet.clear();
             sendValueToDecision = false;
             
@@ -86,6 +89,7 @@ class sens_num_senders_impl : public sens_num_senders{
         }
 
         size_t data_len = pmt::blob_length(blob);
+        //LOG printf("Tamanho do pacote recebido: %d\n", data_len);
         if (data_len < 11 && data_len != 6) {
             return;
         }
@@ -96,13 +100,25 @@ class sens_num_senders_impl : public sens_num_senders{
         
         recPackage = (char*) pmt::blob_data(blob);
         uint16_t crc = crc16(recPackage, data_len);
+
+//        printf("Inteiro\n\n");
+//        printPack(recPackage, data_len);
+//        printf("CHAR\n\n");
+//        printPackChar(recPackage, data_len);
         
         if (crc == 0 && recPackage[0] == 97) {
             bool elementIsPresent = false;  
+//            std::cout<<"CRC: "<<crc<<std::endl;
             
             if (!sendersSet.empty()) {
+//                std::cout<<"Lista não é vazia: "<<std::endl;
                 std::list<char*>::iterator it = sendersSet.begin();
                 while (it != sendersSet.end()) {
+//                    std::cout<<"it0: "<<(*it)[0]<<std::endl;
+//                    std::cout<<"it1: "<<(*it)[1]<<std::endl;
+//                    
+//                    std::cout<<"recPack7: "<<recPackage[7]<<std::endl;
+//                    std::cout<<"recPack8: "<<recPackage[8]<<std::endl;
                     
                     if((*it)[0] == recPackage[7] && (*it)[1] == recPackage[8]){
                         elementIsPresent = true;
@@ -122,7 +138,8 @@ class sens_num_senders_impl : public sens_num_senders{
                 sendersSet.push_back(sender);                
             }
         }
-
+        
+//        std::cout<<"List Size: "<< sendersSet.size()<<std::endl;
     }
     
     uint16_t crc16(char *buf, int len) {
@@ -146,7 +163,7 @@ class sens_num_senders_impl : public sens_num_senders{
     void printPack(char* pack, int data_len) {
         int j = 0;
         for (j = 0; j < data_len; j++) {
-            printf("%d-", pack[j]);
+            printf("%d-", pack[j]);// & 0xff);
         }
         printf("\n");
     }
@@ -159,6 +176,30 @@ class sens_num_senders_impl : public sens_num_senders{
         printf("\n");
     }
 
+//    void
+//    sens_num_senders_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
+//    {
+//        /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
+//    }
+
+//    int
+//    sens_num_senders_impl::general_work (int noutput_items,
+//                       gr_vector_int &ninput_items,
+//                       gr_vector_const_void_star &input_items,
+//                       gr_vector_void_star &output_items)
+//    {
+//        const <+ITYPE*> *in = (const <+ITYPE*> *) input_items[0];
+//        <+OTYPE*> *out = (<+OTYPE*> *) output_items[0];
+//
+//        // Do <+signal processing+>
+//        // Tell runtime system how many input items we consumed on
+//        // each input stream.
+//        consume_each (noutput_items);
+//
+//        // Tell runtime system how many output items we produced.
+//        return noutput_items;
+//    }
+    
 };
 
 sens_num_senders::sptr

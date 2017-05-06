@@ -30,6 +30,11 @@
 		<type>message</type>
 		<optional>1</optional>
 	</sink>
+	<sink>
+		<name>troca in</name>
+		<type>message</type>
+		<optional>1</optional>
+	</sink>
 	<source>
 		<name>troca out</name>
 		<type>message</type>

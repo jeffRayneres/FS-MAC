@@ -25,6 +25,7 @@
 #include <fsmac/csma.h>
 #include <gnuradio/io_signature.h>
 #include <gnuradio/block_detail.h>
+//#include <list>
 #include <cstdlib>
 
 #include <iostream>
@@ -38,6 +39,7 @@
 
 #include "SendPackage.h"
 #include "MyList.h"
+#include "MyListLat.h"
 
 using namespace gr::fsmac;
 
@@ -45,6 +47,8 @@ class csma_impl : public csma {
     float lastAvPower = -1000.0;
     float referenceValueChannelBusy = -80;
     MyList& sendList = MyList::Instance();
+    //    std::list<SendPackage*> sendList;
+    //    MyList& mylist = MyList::Instance();
     std::list<SendPackage*> commandList;
     long int slotSize = 2; //milisecounds/2
     long int cw_backoff_min = 4; //number of slots/4
@@ -63,15 +67,20 @@ class csma_impl : public csma {
     short max_retr = 5;
 
     //Endereço MAC local. Os endereços possuem 2 bytes, assim, essas duas 
-    //variáveis representam apenas um endereço.
-    char mac_addr_1; 
-    char mac_addr_2; 
+    //variáveis representam apenas um endereço. Para testes, esse endereço deve 
+    //ser mudado para cada máquina. Deve-se lembrar de manter a coerência com 
+    //os endereços de outras máquinas atribuidos na função start() e com a 
+    //chamada da função generate_mac() feita na função app_in().
+    char mac_addr_1; // = 0x41;
+    char mac_addr_2; // = 0xe8;
+
+    //    int indexDestNode;
 
     //Endereço de broadcast
     char addr_bc_1 = 0xff;
     char addr_bc_2 = 0xff;
 
-    //Endereços da rede para simulações
+    //Endereços de outras máquinas para simulações
     char addr0[2];
     char addr1[2];
     char addr2[2];
@@ -80,12 +89,12 @@ class csma_impl : public csma {
     char addr5[2];
     char addr6[2];
 
-    //array que vai conter os endereços da rede
+    //array que vai conter os endereços das outras máquinas
     char* addrs[7];
 
     boost::shared_ptr<gr::thread::thread> exec;
     boost::shared_ptr<gr::thread::thread> waitSending;
-    boost::shared_ptr<gr::thread::thread> waitToComputeTb;
+    boost::shared_ptr<gr::thread::thread> waitToComputeTb;  
     boost::shared_ptr<gr::thread::thread> waitToExchange;
     boost::condition_variable cond;
     boost::condition_variable cond2;
@@ -102,6 +111,7 @@ class csma_impl : public csma {
     struct timeval myComT1, myComT2;
     struct timeval myComT3, myComT4;
     std::list<double> listaLatencias;
+   // MyListLat& listaLatencias = MyListLat::Instance();
     std::list<double> latencyListForSensor;
     double elapsedTime = 0;
     bool waitingAck = false;
@@ -111,6 +121,7 @@ class csma_impl : public csma {
     bool exchanging = true;
     float latencyAv = 0.0;
     int latency_counter = 0;
+    long int num_fsmac_packs = 0;
 
 
 public:
@@ -119,6 +130,8 @@ public:
 #define EXCHANGE_COMMAND_STOP 2
 #define EXCHANGE_COMMAND_DONE 3
 #define LATENCY_SENSOR_COMMAND_SEND 4
+
+    //#define dout d_debug && std::cout
 
     csma_impl(int mac_addr, int dest_node, bool debug) :
     block("csma",
@@ -130,8 +143,12 @@ public:
     d_num_packet_errors(0),
     d_num_packets_received(0) {
 
+        //        mac_addr_1 = addrs[mac_addr][0];//mac_addr[0];
+        //        mac_addr_2 = addrs[mac_addr][1];//mac_addr[1];
         indexDestNode = dest_node;
         indexLocalMac = mac_addr;
+
+        //        sendList = mylist.getList();
 
         message_port_register_in(pmt::mp("cs in"));
         set_msg_handler(pmt::mp("cs in"), boost::bind(&csma_impl::cs_in, this, _1));
@@ -152,7 +169,7 @@ public:
 
     void ctrl_in(pmt::pmt_t msg) {
         if (pmt::is_pair(msg)) {
-            int command;
+            int command; // = pmt::to_uint64(msg);
             pmt::pmt_t command_pmt = pmt::car(msg);
             command = pmt::to_uint64(command_pmt);
 
@@ -169,6 +186,7 @@ public:
                     new_prot = '2';
                 }
 
+//                printf("CSMA: Recebeu comando de envio.\n");
                 char commandFsmac[2];
                 commandFsmac[1] = 0x01;
 
@@ -184,11 +202,14 @@ public:
 
                 pmt::pmt_t packReq = pmt::cons(pmt::PMT_NIL, pmt::make_blob(packRequest, control_pack_len));
                 SendPackage* packageFsmac = new SendPackage(packReq, commandFsmac[1], false);
+
+//                printf("ANTES da notificacao para thread de envios\n");
                 
                 comm_ready = true;
                 commandList.push_back(packageFsmac);
                 data_ready = true;
                 cond.notify_all();
+//                printf("DEPOIS da notificacao para thread de envios\n");
 
                 if (new_protocol != 1) {                    
                     answer_sending = true;
@@ -198,8 +219,18 @@ public:
             int command = pmt::to_uint64(msg);
 
             if (command == EXCHANGE_COMMAND_STOP) {
+//                printf("CSMA: Parar atuação CSMA\n");
                 exchanging = true;
-                pmt::pmt_t pack_list = pmt::make_dict();        
+                pmt::pmt_t pack_list = pmt::make_dict();
+
+                //TODO passar a fila
+                //                std::list<SendPackage*>::iterator it = sendList.begin();
+                //                int index = 0;
+                //                while (it != sendList.end()) {
+                //                    pack_list = pmt::dict_add(pack_list, pmt::from_uint64(index), (*it)->getPackage());
+                //                    it++;
+                //                    index++;
+                //                }         
 
                 message_port_pub(pmt::mp("ctrl out"), pack_list);
                 //                exec->interrupt();
@@ -211,9 +242,18 @@ public:
                     std::ostringstream ss;
                     ss << latencyAv;
                     std::string latency_str(ss.str());
+                    
+//                    std::cout<<"Latencia média: "<<latencyAv<<std::endl;
+//                    std::cout<<"Número de latencias: "<<latency_counter<<std::endl;
+//                    char latency_char[1024];
+//                    strncpy(latency_char, latency_str.c_str(), sizeof (latency_char));
+//                    latency_char[sizeof (latency_char) - 1] = 0;
 
                     char commandFsmac[2];
                     commandFsmac[1] = 0x01;
+
+                    //                char* request = (char*) malloc(sizeof (char)*1);
+                    //                request[0] = 'Z';
 
                     char packRequest[256];
                     char addr_d[2];
@@ -221,10 +261,16 @@ public:
                     addr_d[1] = addr_bc_2;
 
                     char comm = 'L';
+//                    printf("CSMA: Gerando comando de latência\n");
+//                    generateControlFsmacPack(latency_char, (int) (ssize_t) latency_str.length(), comm, packRequest, EXCHANGE_COMMAND_SEND_INFO, addr_d);
 
                     std::stringstream ss2;
                     ss2 << latency_counter;
                     std::string latency_counter_str = ss2.str();
+
+//                    char latency_counter_char[1024];
+//                    strncpy(latency_counter_char, latency_counter_str.c_str(), sizeof (latency_counter_char));
+//                    latency_counter_char[sizeof (latency_counter_char) - 1] = 0;
 
                     std::string couter_plus_av(latency_counter_str + "&" + latency_str);
                     int sizeCounterPlusAv = ((int) (ssize_t) latency_counter_str.length()) + ((int) (ssize_t) latency_str.length());
@@ -235,6 +281,9 @@ public:
                     
                     generateControlFsmacPack(couter_plus_av_char, sizeCounterPlusAv , comm, packRequest, EXCHANGE_COMMAND_SEND_INFO, addr_d);
                     
+//                    pmt::pmt_t latency_counter_blob = pmt::make_blob(latency_counter_char, (int) (ssize_t) latency_counter_str.length());
+
+                    //                    pmt::pmt_t packReq = pmt::cons(latency_counter_blob, pmt::make_blob(packRequest, control_pack_len));
                     pmt::pmt_t packReq = pmt::cons(pmt::get_PMT_NIL(), pmt::make_blob(packRequest, control_pack_len));
 
                     SendPackage* packageFsmac = new SendPackage(packReq, commandFsmac[1], false);
@@ -246,6 +295,9 @@ public:
                 }
             }
         } else if (pmt::is_dict(msg)) {
+//            printf("CSMA: Recebeu fila para trocar protocolo.\n");
+
+            //TODO receber a fila
 
             pmt::pmt_t exch_command = pmt::from_uint64(EXCHANGE_COMMAND_DONE);
             message_port_pub(pmt::mp("ctrl out"), exch_command);
@@ -271,7 +323,10 @@ public:
         }
 
         size_t data_len = pmt::blob_length(blob);
+        //LOG printf("Tamanho do pacote recebido: %d\n", data_len);
         if (data_len < 11 && data_len != 6) {
+            //  dout << "MAC: frame too short. Dropping! === " << std::endl;
+            //            printPack((char*) pmt::blob_data(blob), data_len);
             return;
         }
 
@@ -282,14 +337,17 @@ public:
         recPackage = (char*) pmt::blob_data(blob);
         uint16_t crc = crc16(recPackage, data_len);
 
+        //LOG std::cout << "Número de pacotes recebidos: " << d_num_packets_received << std::endl;
         if (crc) {
             d_num_packet_errors++;
+//            std::cout << "MAC: wrong crc. Dropping packet!" << std::endl;
             if (d_debug) {
                 printPack(recPackage, data_len);
             }
             return;
         } else {
             if (isAckPack(recPackage)) {
+                //LOG printf("Package %u acked.\n\n", (unsigned char)recPackage[2]);
                 removePackAcked(recPackage);
             } else if ((mac_addr_1 != recPackage[7] || mac_addr_2 != recPackage[8]) &&
                     (mac_addr_1 == recPackage[5] && mac_addr_2 == recPackage[6])) {
@@ -299,6 +357,9 @@ public:
                 //mim". Só trata o pacote se as duas condições forem verdadeiras.                
 
                 d_num_packets_received++;
+                //LOG dout << "MAC: correct crc. Propagate packet to APP layer." << std::endl;
+                //LOG printf("Pacote recebido - ID: %u - Endereco de origem: %u%u\n", (unsigned char)recPackage[2], 
+                //(unsigned char)recPackage[7], (unsigned char)recPackage[8]);
 
                 pmt::pmt_t mac_payload = pmt::make_blob((char*) pmt::blob_data(blob) + 9, data_len - 9 - 2);
                 message_port_pub(pmt::mp("app out"), pmt::cons(pmt::PMT_NIL, mac_payload));
@@ -311,6 +372,7 @@ public:
                     SendPackage* packageAck = new SendPackage(packAck, recPackage[2], true);
                     send(packageAck);
                 } else {
+//                    printf("TIPO PACOTE: %x\n", recPackage[0] & 0xff);
                     printf("\n");
                 }
             } else {
@@ -353,6 +415,8 @@ public:
         if (d_debug) {
             printf("Elapsed time: %f\n", timeCom);
         }
+        
+//        printf("Latencia normal: %f\n", timeCom);
     }
     
     /**
@@ -379,6 +443,8 @@ public:
         if (d_debug) {
             printf("Elapsed time sensor: %f\n", timeCom);
         }
+        
+//        printf("Latencia para sensor: %f\n", timeCom);
     }
 
     bool isAckPack(char* recPack) {
@@ -397,15 +463,18 @@ public:
 
         if (!sendList.empty()) {
             std::list<SendPackage*>::iterator it = sendList.begin();
+            //        while (it != sendList.end()) {
             if ((*it)->getId() == packId && (*it)->getCanRemove() == false) {
                 (*it)->setCanRemove(true);
                 lastPackAckedOrTimeToResendFinished = true;
+
+                //                waitingAck = false;
                 
                 finalizaContagemLatenciaParaSensor();
+                finalizaContagemLatencia();
 
                 if (canCompute) {
                     numPackConfirmados++;
-                    finalizaContagemLatencia();
                 }
 
                 cond2.notify_all();
@@ -413,8 +482,13 @@ public:
                 if (d_debug) {
                     printf("Package %u acked.\n\n", (unsigned char) ackPack[2]);
                 }
+                //                break;
             }
+            //            it++;
+            //        }
         }
+
+
     }
 
     /**
@@ -432,9 +506,15 @@ public:
             } else if (pmt::is_pair(msg)) {
                 blob = pmt::cdr(msg);
             } else {
+                // dout << "MAC: unknown input" << std::endl;
                 return;
             }
+            //            printf("CSMA: Recebeu pacote\n");
+            //LOG printf("Preparando pacote para o endereco: %u%u\n\n", addr0[0], addr0[1]);
 
+            //Neste caso, todos os pacotes estão sendo enviados para o endereço 
+            //addr0, para melhorar os testes, este endereço poderia ser escolhido 
+            //aleatoriamente entre os endereços disponíveis.
             generate_mac((const char*) pmt::blob_data(blob), pmt::blob_length(blob), addrs[indexDestNode]);
             pmt::pmt_t pack = pmt::cons(pmt::PMT_NIL, pmt::make_blob(d_msg, d_msg_len));
             SendPackage* package = new SendPackage(pack, d_msg[2], false);
@@ -451,10 +531,15 @@ public:
      * A função que implementa essa espera é a executeM().
      */
     void send(SendPackage* pack) {
+        //        printf("CSMA: Colocou pacote na fila\n");
+        //        pmt::print(pack->getPackage());
         if (pack->hasAckPackage()) {
             sendAckPackage(pack);
         } else if (sendList.size() < 100) {
             sendList.push_back(pack);
+            //            mylist.push_back(pack);
+            //            printf("Tamanho da my liste %d\n", mylist.size());
+            //            printf("Tamanho da fila: %d\n", sendList.size());
         }
 
         data_ready = true;
@@ -466,10 +551,13 @@ public:
      * o ack não é colocado em fila de envio, é enviado diretamente.
      */
     void sendAckPackage(SendPackage* pack) {
+        //LOG std::cout << "Waiting Sifs: " << sifs << std::endl;
         boost::posix_time::millisec workTime(sifs);
         boost::this_thread::sleep(workTime);
 
         message_port_pub(pmt::mp("pdu out"), pack->getPackage());
+        //LOG printf("Enviando ack ID: %u\n\n", pack->getId());
+
     }
 
     void waitToCompute() {
@@ -477,17 +565,29 @@ public:
         boost::this_thread::sleep(workTimeAloc);
 
         canCompute = true;
+        
+        listaLatencias.clear();
     }
 
     void calculateLatencyAv() {
         float sum = 0.0;
         latency_counter = 0;
-
-        std::list<double>::iterator it = latencyListForSensor.end();
-        while (it != latencyListForSensor.begin()) {
+        long unsigned int tam_lista = latencyListForSensor.size();
+        
+//        std::list<double>::iterator it = latencyListForSensor.end();
+//        while (it != latencyListForSensor.begin()) {
+//            sum = sum + (*it);
+//            latency_counter++;
+//            it--;
+//        }
+        
+        int index = 0;
+        std::list<double>::iterator it = latencyListForSensor.begin();
+        while (index < tam_lista) {
             sum = sum + (*it);
             latency_counter++;
-            it--;
+            it++;
+            index++;
         }
 
         latencyAv = sum / latency_counter;
@@ -547,6 +647,7 @@ public:
 
         return block::start();
     }
+    
 
     /**
      * Esta função sobrescreve a função nativa do GNU Radio que ativa o bloco. 
@@ -554,13 +655,17 @@ public:
      * desativado.
      */
     bool stop() {
-        exchanging = true;
-        exec->interrupt();
+          exchanging = true;
+          exec->interrupt();
+//        exec->join();
 
+  //      waitToComputeTb->join();
         waitToComputeTb->interrupt();
 
-        if (!listaLatencias.empty()) {
-
+        if (numPackEnviados != 0) {
+            
+            boost::posix_time::millisec workTime(2000);
+            boost::this_thread::sleep(workTime);
 
             gettimeofday(&t2, NULL);
 
@@ -574,6 +679,7 @@ public:
             std::cout << "Enviados:" << numPackEnviados << std::endl;
             std::cout << "Confirmados:" << numPackConfirmados << std::endl;
             std::cout << "Retransmissoes: " << numRetransmissoes << std::endl;
+            std::cout << "pacotesFsmac: " << num_fsmac_packs << std::endl;
             std::cout << "VazaoPs: " << numPackConfirmados / (finalTime / 1000) << " pacotes/s" << std::endl;
             std::cout << "VazaoBs:" << numPackConfirmados * 110 / (finalTime / 1000) << " bytes/s" << std::endl;
             std::cout << "Taxa:" << double(numPackConfirmados) / numPackEnviados * 100 << " porcento" << std::endl;
@@ -606,6 +712,8 @@ public:
             timeToStart = 1000;
         }
 
+        //        printf("CSMA: Entrou no executeM\n");
+
         waitToComputeTb = boost::shared_ptr<gr::thread::thread>
                 (new gr::thread::thread(boost::bind(&csma_impl::waitToCompute, this)));
 
@@ -613,6 +721,7 @@ public:
         while (true && !exchanging) {
 
             while (!data_ready) {
+                //std::cout << "Loop" << std::endl;
                 cond.wait(lock);
             }
 
@@ -633,21 +742,33 @@ public:
      */
     bool sendPackageNow(SendPackage* pack) {
         pmt::pmt_t pmt_pack = pack->getPackage();
+        //        pmt::print(pmt_pack);
         struct timeval now;
         message_port_pub(pmt::mp("pdu out"), pmt_pack);
 
+//        if (!comm_ready) {
+//            iniciaContagemLatenciaParaSensor();
+//        }
+
+
         if (!comm_ready) {
-            iniciaContagemLatenciaParaSensor();
-        }
-        
-        if (canCompute && !comm_ready) {
             if (pack->getResends() == 0) {
-                numPackEnviados++;
+                if (canCompute) {
+                    numPackEnviados++;
+                }
                 iniciaContagemLatencia();
+                iniciaContagemLatenciaParaSensor();
             } else {
-                numRetransmissoes++;
+                if(canCompute){
+                    numRetransmissoes++;                    
+                }
+            }
+        } else if (comm_ready) {
+            if (canCompute) {
+                num_fsmac_packs++;
             }
         }
+        
 
         lastPackAckedOrTimeToResendFinished = false;
         if (d_debug) {
@@ -667,9 +788,11 @@ public:
      */
     bool runSending() {
         while ((!sendList.empty() || !commandList.empty()) && !exchanging) {
+//            printf("CSMA: Entrou no PRIMEIRO while\n");
             std::list<SendPackage*>::iterator it = sendList.begin();
             while ((it != sendList.end() || !commandList.empty()) && !exchanging) {
                 it = sendList.begin();
+//                printf("CSMA: Entrou no SEGUNDO while\n");
                 //Remove os pacotes confirmados e que excederam a quantidade de reenvios
                 if (!sendList.empty() && (*it)->getCanRemove()) {
                     SendPackage* packToRemove = *it;
@@ -677,27 +800,39 @@ public:
                     sendList.remove(packToRemove);
                     cw_current_backoff = cw_backoff_min;
                 } else {
+//                    std::cout << "Waiting Diff: " << difs << std::endl;
                     boost::posix_time::millisec workTimeDifs(difs);
                     boost::this_thread::sleep(workTimeDifs);
 
+//                    printf("INICIO da verificacao de backoff\n");
                     if (!sendList.empty() && (*it)->getResends() > 0) {
                         cw_current_backoff = cw_current_backoff * 2;
                     }
+//                    printf("FIM da verificacao de backoff\n");
 
                     real_backoff = (std::rand() % cw_current_backoff) + 1;
                     boost::posix_time::millisec workTime(slotSize);
 
-
+//                    printf("INICIO da espera de backoff\n");
                     //tratamento do backoff
+//                    std::cout << "Real backoff inicial: " << real_backoff << std::endl;
                     while (real_backoff >= 0) {
+//                        printf("INICIO SLEEP\n");
                         boost::this_thread::sleep(workTime);
+//                        printf("FIM SLEEP\n");
+//                        std::cout << "POTENCIA DO MEIO: " <<lastAvPower << std::endl;
                         if (!isChannelBusy(referenceValueChannelBusy)) {
                             real_backoff = real_backoff - slotSize;
+//                            std::cout << "Real backoff: " << real_backoff << std::endl;
                         }
                     }
+//                    printf("FIM da espera de backoff\n");
 
                     if (!commandList.empty()) {
+//                        printf("Envio de comando %d vez.\n", commandList.front()->getResends());
                         sendPackageNow(*(commandList.begin()));
+                        //                        pmt::print((*(commandList.begin()))->getPackage());
+                        //printPackChar(d_com, 12);
 
                         if (commandList.front()->getResends() == 2) {
                             comm_ready = false;
@@ -709,10 +844,13 @@ public:
                             }
                             
                             answer_sending = false;                            
+//                            printf("Comando enviado com sucesso. Vida que segue.\n");
                         }
 
                     } else {
                         sendPackageNow(*it);
+                        //                    }
+
                         //epera para reenvio
                         waitSending = boost::shared_ptr<gr::thread::thread>
                                 (new gr::thread::thread(boost::bind(&csma_impl::waitResendingTime, this)));
@@ -726,11 +864,14 @@ public:
                         //que acontecer primeiro. 
                         while (!lastPackAckedOrTimeToResendFinished) {
                             cond2.wait(lock2);
+                            //                        printf("Loop de confirmacao\n");
                         }
 
                         lock2.unlock();
                         waitSending->interrupt();
-
+                        //                    printf("Saiu do Loop de confirmacao\n");
+                        //                    waitSending->interrupt();
+                        //                    waitSending->join();
                     }
                 }
 
@@ -773,13 +914,19 @@ public:
             std::cout << "Is blob" << std::endl;
         } else if (pmt::is_pair(msg)) {
             blob = pmt::car(msg);
+            //LOG std::cout << "Is pair" << std::endl;
         }
 
         float avPowerChannel = 0;
         float power = 0;
 
+        //In this case, the blob is a dictionary, we are getting the value of power using the key "power"
         pmt::pmt_t pmtPower = pmt::dict_ref(blob, pmt::string_to_symbol("power"), pmt::get_PMT_NIL());
         power = pmt::to_float(pmtPower);
+
+        //LOG std::cout << "Power: ";
+
+        //LOG std::cout << power << std::endl;
 
         avPowerChannel = power;
 
@@ -793,7 +940,14 @@ public:
         return (lastAvPower > refValue);
     }
 
-
+    /**
+     * Função da implementação original. Funciona bem, mas tem um problema de 
+     * retorno, quando o crc falha, retorna true, no caso de sucesso, retorna 
+     * false.
+     * @param buf
+     * @param len
+     * @return 
+     */
     uint16_t crc16(char *buf, int len) {
         uint16_t crc = 0;
 
@@ -813,7 +967,7 @@ public:
     }
 
     /**
-     * Gera os pacotes de confirmação. Está em acordo com 
+     * Gera os pacotes de confirmação. Implementada por mim, está em acordo com 
      * o 802.15.4.
      * @param buf Usado apenas para verificação do id do pacote
      * @param dAck o pacote ack a ser configurado
@@ -864,6 +1018,10 @@ public:
         unsigned char packId;
         packId = d_seq_nr;
 
+        //        if(type == TYPE_BEACON_SYNC){
+        //            printf("Pacote id, len: %c, %d\n", packId, len);
+        //        }
+
         pack[0] = 0x41;
         pack[1] = 0x88;
 
@@ -889,7 +1047,7 @@ public:
 
     }
 
-    char* generateFsmacPack(const char *buf) {
+    char* generateFsmacPack(const char *buf) {//, char* dFsmac) {
         unsigned char packId;
         packId = (unsigned char) buf[1];
 
@@ -917,6 +1075,13 @@ public:
         return d_com;
     }
 
+    /**
+     * Gera os pacotes de dados.
+     * Essa função é da implementação original, melhorei ela um pouco, 
+     * mas precisa ser muito melhorada ainda. Os autores dizem que o pacote 
+     * está em acordo com o padrão 802.15.4. Confiei neles, conferi 
+     * tudo exceto o subfild de controle.
+     */
     void generate_mac(const char *buf, int len, char* addr_dest) {
 
         // FCF
@@ -946,6 +1111,15 @@ public:
         d_msg_len = 9 + len + 3;
     }
 
+    //    void print_message() {
+    //        for (int i = 0; i < d_msg_len; i++) {
+    //            dout << std::setfill('0') << std::setw(2) << std::hex << ((unsigned int) d_msg[i] & 0xFF) << std::dec << " ";
+    //            if (i % 16 == 15) {
+    //                dout << std::endl;
+    //            }
+    //        }
+    //        dout << std::endl;
+    //    }
 
     int get_num_packet_errors() {
         return d_num_packet_errors;
@@ -968,6 +1142,7 @@ private:
     char d_com[256];
     int indexDestNode;
     int indexLocalMac;
+    //    uint8_t d_mac_addr[2];
 
     int d_num_packet_errors;
     int d_num_packets_received;

@@ -281,27 +281,17 @@ class decision(gr.sync_block):
 
         if x == 1:
             low_pert = 100
-        else:
+        elif x > 1 and x <= 6:
+            low_pert = -20*x + 120
+        elif x >= 6:
             low_pert = 0
 
         if x == 1:
             hight_pert = 0
-        else:
+        elif x > 1 and x <= 6:
+            hight_pert = 20*x - 20
+        elif x > 6:
             hight_pert = 100
-
-        # if x == 1:
-        #     low_pert = 100
-        # elif x > 1 and x <= 6:
-        #     low_pert = -20*x + 120
-        # elif x >= 6:
-        #     low_pert = 0
-        #
-        # if x == 1:
-        #     hight_pert = 0
-        # elif x > 1 and x <= 6:
-        #     hight_pert = 20*x - 20
-        # elif x > 6:
-        #     hight_pert = 100
 
         # if x >= 1 and x <= 7:
         #     low_pert = -16.6667*x  + 116.6667
@@ -332,59 +322,35 @@ class decision(gr.sync_block):
         low_pert = 0;
         hight_pert = 0;
 
-        if active_protocol == 1:
-            if x <= 13:
+        if self.active_protocol == 1:
+            if x <= 17:
                 low_pert = 100
-            else:
+            elif x > 17 and x <= 80:
+                low_pert = -1.5873*x  + 126.9841
+            elif x >= 80:
                 low_pert = 0
 
-            if x <= 13:
+            if x <= 17:
                 hight_pert = 0
-            else:
+            elif x > 17 and x <= 80:
+                hight_pert = 1.5873*x - 26.9841
+            elif x > 80:
                 hight_pert = 100
 
-        elif active_protocol == 2:
-            if x <= 13:
+        elif self.active_protocol == 2:
+            if x <= 17:
                 low_pert = 100
-            else:
+            elif x > 17 and x <= 37:
+                low_pert = -5*x  + 185
+            elif x >= 37:
                 low_pert = 0
 
-            if x <= 13:
+            if x <= 17:
                 hight_pert = 0
-            else:
+            elif x > 17 and x <= 37:
+                hight_pert = 5*x - 85
+            elif x > 37:
                 hight_pert = 100
-
-        # if self.active_protocol == 1:
-        #     if x <= 17:
-        #         low_pert = 100
-        #     elif x > 17 and x <= 80:
-        #         low_pert = -1.5873*x  + 126.9841
-        #     elif x >= 80:
-        #         low_pert = 0
-        #
-        #     if x <= 17:
-        #         hight_pert = 0
-        #     elif x > 17 and x <= 80:
-        #         hight_pert = 1.5873*x - 26.9841
-        #     elif x > 80:
-        #         hight_pert = 100
-        #
-        # elif self.active_protocol == 2:
-        #     if x <= 17:
-        #         low_pert = 100
-        #     elif x > 17 and x <= 37:
-        #         low_pert = -5*x  + 185
-        #     elif x >= 37:
-        #         low_pert = 0
-        #
-        #     if x <= 17:
-        #         hight_pert = 0
-        #     elif x > 17 and x <= 37:
-        #         hight_pert = 5*x - 85
-        #     elif x > 37:
-        #         hight_pert = 100
-
-
         # low_pert = 0;
         # hight_pert = 0;
         #

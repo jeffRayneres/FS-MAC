@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /* 
- * Copyright 2016 <Jefferson Rayneres Silva Cordeiro {jeff@dcc.ufmg.br} - DCC/UFMG>.
+ * Copyright 2016 <+YOU OR YOUR COMPANY+>.
  * 
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,22 +80,27 @@ public:
     void sendInformation() {
         while (true) {
             if(!is_coordinator){
+//                printf("Enviando LATENCY_INFO\n");
                 pmt::pmt_t latency_command = pmt::from_uint64(LATENCY_SENSOR_COMMAND_SEND);
                 message_port_pub(pmt::mp("dec out"), latency_command);
             } else if (is_coordinator) {
                 float sum = 0.0;
                 
-                std::list<double>::iterator it = latencyListSum.end();
+                std::list<double>::iterator it = latencyListSum.begin();
                 float instant_latency_counter = latency_counter;
                 
-                while (it != latencyListSum.begin()) {
+                while (it != latencyListSum.end()) {
                     sum = sum + (*it);
-                    it--;
+                    it++;
                 }
 
                 float latencyAv = sum / instant_latency_counter;
+//                printf("SOMA LATENCIAS: %f\n", sum);
+//                printf("QUANTIDADE DE LATENCIAS: %f\n", instant_latency_counter);
                 latencyListSum.clear();
                 latency_counter = 0.0;
+                
+//                printf("LATENCIA CALCULADA: %f\n", latencyAv);
                 
                 pmt::pmt_t final_latency_av_pmt = pmt::from_float(latencyAv);
                 message_port_pub(pmt::mp("dec out"), final_latency_av_pmt);
@@ -126,6 +131,7 @@ public:
             }
 
             size_t data_len = pmt::blob_length(blob);
+            //LOG printf("Tamanho do pacote recebido: %d\n", data_len);
             if (data_len < 11 && data_len != 6) {
                 return;
             }
@@ -136,8 +142,13 @@ public:
 
             recPackage = (char*) pmt::blob_data(blob);
             uint16_t crc = crc16(recPackage, data_len);
+            
+//            pmt::print(msg);
 
             if (crc == 0 && recPackage[0] == 0x41 && recPackage[9] == 'L') {
+                //pmt::print(msg);
+                
+//                printf("\nEntrou no if de captar latencias\n\n");
                 int strSize = data_len - 10 - 2;
                 
                 char* count_plus_latency_chars = (char*)malloc(sizeof(char)*strSize);
@@ -155,8 +166,8 @@ public:
                     }
                 }
                 
-                char count_char[split_index + 1]; 
-                char latency_char[strSize - split_index];
+                char count_char[split_index + 1]; //(char*)malloc(sizeof(char) * (split_index + 1));
+                char latency_char[strSize - split_index];// = (char*)malloc(sizeof(char) * (strSize - split_index));
                 
                 for(i=0; i<split_index; i++){
                     count_char[i] = count_plus_latency_chars[i];
@@ -171,8 +182,22 @@ public:
                 
                 latency_char[strSize] = '\0';
                 
+//                printf("Tamanho: %d - Split: %d\n", strSize, split_index);
+                
+//                printPackChar(count_plus_latency_chars, strSize);
+//                printPackChar(latency_char, strSize - split_index - 1);
+                
+                
                 std::string local_latency_str(latency_char);
                 std::string local_latency_counter_str(count_char);
+                
+//                std::cout<<"String completa: "<<local_latency_counter_str<<std::endl;
+//                std::cout<<"Latencia string: "<<local_latency_str<<std::endl;
+//                std::cout<<"Contagem string: "<<local_latency_counter_str<<std::endl;
+
+
+//                float latency = (float) atof(local_latency_str.c_str());
+                
 
                 double latency;
 
@@ -184,8 +209,13 @@ public:
                 
                 std::istringstream ss(local_latency_counter_str);
                 ss >> local_latency_counter;
-                               
+                
+                
                 float latency_sum = latency * local_latency_counter;
+                
+//                std::cout<<"VALOR DA LATENCIA QUE CHEGOU: "<<latency<<std::endl;
+                
+//                printf("VALOR DA LATENCIA QUE CHEGOU %f: \n", latency);
                 
                 latency_counter = latency_counter + local_latency_counter;
                 latencyListSum.push_back(latency_sum);

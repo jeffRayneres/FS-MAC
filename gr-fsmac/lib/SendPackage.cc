@@ -1,21 +1,7 @@
-/* -*- c++ -*- */
-/* 
- * Copyright 2016 <Jefferson Rayneres Silva Cordeiro {jeff@dcc.ufmg.br} - DCC/UFMG>.
- * 
- * This is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3, or (at your option)
- * any later version.
- * 
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 51 Franklin Street,
- * Boston, MA 02110-1301, USA.
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 
 /* 
@@ -39,6 +25,12 @@ SendPackage::SendPackage(pmt::pmt_t pack, unsigned char idPack, bool hasAckPack)
     hasAck = hasAckPack;
     canRemove = false;
 }
+
+//SendPackage::SendPackage(const SendPackage& orig) {
+//}
+
+//SendPackage::~SendPackage() {
+//}
 
 pmt::pmt_t SendPackage::getPackage(){
     return package;

@@ -30,6 +30,7 @@ list(APPEND fsmac_sources
     tdma.cc
 	 SendPackage.cc
 	 MyList.cc	
+	 MyListLat.cc	
     sens_num_senders.cc
     exchanger.cc
     latency_sensor.cc

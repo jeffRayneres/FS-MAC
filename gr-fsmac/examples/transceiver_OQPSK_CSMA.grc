@@ -716,7 +716,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(344, 353)</value>
+      <value>(352, 361)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -776,10 +776,6 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-    <param>
-      <key>is_coord</key>
-      <value>False</value>
     </param>
   </block>
   <block>
@@ -884,7 +880,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(344, 217)</value>
+      <value>(352, 224)</value>
     </param>
     <param>
       <key>_rotation</key>

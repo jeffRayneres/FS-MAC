@@ -3,6 +3,8 @@
 
 #include "MyList.h"
 
+//using namespace pmt;
+
 std::list<SendPackage*> sendList;
 static MyList *instance;
 bool flag = false;
