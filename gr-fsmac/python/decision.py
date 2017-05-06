@@ -276,18 +276,19 @@ class decision(gr.sync_block):
         return adaptability_degree
 
     def senders_function(self, x):
-        low_pert = 0;
-        hight_pert = 0;
+		if x >= 0 and x <= 1:
+		  low_pert = 100
+		elif x > 1 and x < 2:
+		  low_pert = -100*x  + 200
+		else:
+		  low_pert = 0
 
-        if x == 1:
-            low_pert = 100
-        else:
-            low_pert = 0
-
-        if x == 1:
-            hight_pert = 0
-        else:
-            hight_pert = 100
+		if x >= 0 and x <= 1:
+		  hight_pert = 0
+		elif x > 1 and x < 2:
+		  hight_pert = 100*x - 100
+		else:
+		  hight_pert = 100
 
         # if x == 1:
         #     low_pert = 100
