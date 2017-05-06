@@ -343,7 +343,7 @@ class decision(gr.sync_block):
         #     else:
         #         hight_pert = 100
 
-        if active_protocol == 1:
+        if self.active_protocol == 1:
             if x >= 0 and x <= 35:
                 low_pert = 100
             elif x > 35 and x < 55:
@@ -358,7 +358,7 @@ class decision(gr.sync_block):
             else:
                 hight_pert = 100
 
-        elif active_protocol == 2:
+        elif self.active_protocol == 2:
             if x >= 0 and x <= 23:
                 low_pert = 100
             elif x > 23 and x < 26:
