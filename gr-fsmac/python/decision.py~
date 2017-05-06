@@ -101,10 +101,11 @@ class decision(gr.sync_block):
             self.message_port_pub(pmt.intern('troca out'), pmt_dict_prot_adapt)
 
     def main_loop(self):
-        try:
-            thread.start_new_thread(self.print_time, ("Thread-1", SECONDS,))
-        except:
-            print "Erro: nao foi possivel iniciar o thread."
+        if self.is_coordinator:
+            try:
+                thread.start_new_thread(self.print_time, ("Thread-1", SECONDS,))
+            except:
+                print "Erro: nao foi possivel iniciar o thread."
 
     def handle_sens1(self,msg):
         self.sens1_value = pmt.to_uint64(msg);
@@ -280,17 +281,27 @@ class decision(gr.sync_block):
 
         if x == 1:
             low_pert = 100
-        elif x > 1 and x <= 6:
-            low_pert = -20*x + 120
-        elif x >= 6:
+        else:
             low_pert = 0
 
         if x == 1:
             hight_pert = 0
-        elif x > 1 and x <= 6:
-            hight_pert = 20*x - 20
-        elif x > 6:
+        else:
             hight_pert = 100
+
+        # if x == 1:
+        #     low_pert = 100
+        # elif x > 1 and x <= 6:
+        #     low_pert = -20*x + 120
+        # elif x >= 6:
+        #     low_pert = 0
+        #
+        # if x == 1:
+        #     hight_pert = 0
+        # elif x > 1 and x <= 6:
+        #     hight_pert = 20*x - 20
+        # elif x > 6:
+        #     hight_pert = 100
 
         # if x >= 1 and x <= 7:
         #     low_pert = -16.6667*x  + 116.6667
@@ -321,35 +332,59 @@ class decision(gr.sync_block):
         low_pert = 0;
         hight_pert = 0;
 
-        if self.active_protocol == 1:
-            if x <= 17:
+        if active_protocol == 1:
+            if x <= 13:
                 low_pert = 100
-            elif x > 17 and x <= 80:
-                low_pert = -1.5873*x  + 126.9841
-            elif x >= 80:
+            else:
                 low_pert = 0
 
-            if x <= 17:
+            if x <= 13:
                 hight_pert = 0
-            elif x > 17 and x <= 80:
-                hight_pert = 1.5873*x - 26.9841
-            elif x > 80:
+            else:
                 hight_pert = 100
 
-        elif self.active_protocol == 2:
-            if x <= 17:
+        elif active_protocol == 2:
+            if x <= 13:
                 low_pert = 100
-            elif x > 17 and x <= 37:
-                low_pert = -5*x  + 185
-            elif x >= 37:
+            else:
                 low_pert = 0
 
-            if x <= 17:
+            if x <= 13:
                 hight_pert = 0
-            elif x > 17 and x <= 37:
-                hight_pert = 5*x - 85
-            elif x > 37:
+            else:
                 hight_pert = 100
+
+        # if self.active_protocol == 1:
+        #     if x <= 17:
+        #         low_pert = 100
+        #     elif x > 17 and x <= 80:
+        #         low_pert = -1.5873*x  + 126.9841
+        #     elif x >= 80:
+        #         low_pert = 0
+        #
+        #     if x <= 17:
+        #         hight_pert = 0
+        #     elif x > 17 and x <= 80:
+        #         hight_pert = 1.5873*x - 26.9841
+        #     elif x > 80:
+        #         hight_pert = 100
+        #
+        # elif self.active_protocol == 2:
+        #     if x <= 17:
+        #         low_pert = 100
+        #     elif x > 17 and x <= 37:
+        #         low_pert = -5*x  + 185
+        #     elif x >= 37:
+        #         low_pert = 0
+        #
+        #     if x <= 17:
+        #         hight_pert = 0
+        #     elif x > 17 and x <= 37:
+        #         hight_pert = 5*x - 85
+        #     elif x > 37:
+        #         hight_pert = 100
+
+
         # low_pert = 0;
         # hight_pert = 0;
         #

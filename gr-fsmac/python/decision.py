@@ -332,7 +332,7 @@ class decision(gr.sync_block):
         low_pert = 0;
         hight_pert = 0;
 
-        if active_protocol == 1:
+        if self.active_protocol == 1:
             if x <= 13:
                 low_pert = 100
             else:
@@ -343,7 +343,7 @@ class decision(gr.sync_block):
             else:
                 hight_pert = 100
 
-        elif active_protocol == 2:
+        elif self.active_protocol == 2:
             if x <= 13:
                 low_pert = 100
             else:
