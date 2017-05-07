@@ -226,8 +226,7 @@ public:
     void control_in(pmt::pmt_t msg) {
         if (pmt::is_uint64(msg)) {
             int command = pmt::to_uint64(msg);
-            if (command == EXCHANGE_COMMAND_INFO_SENT) {//stop active protocol 
-                printf("\nExchanging...\n\n");
+            if (command == EXCHANGE_COMMAND_INFO_SENT) {//stop active protocol                 
                 sending = false;
                 state = EXCHANGE_STATE;
                 pmt::pmt_t exch_command = pmt::from_uint64(EXCHANGE_COMMAND_STOP);
@@ -237,6 +236,7 @@ public:
                     message_port_pub(pmt::mp("p2_ctrl out"), exch_command);
                 }
             }else if(command == EXCHANGE_COMMAND_DONE){
+				printf("\nExchanging...\n\n");
                 active_protocol = next_protocol;
 //                printf("EXCH: Novo protocolo ativo: %d\n", active_protocol);
 //                printf("EXCH: Recebeu DONE\n");

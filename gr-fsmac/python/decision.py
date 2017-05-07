@@ -124,7 +124,7 @@ class decision(gr.sync_block):
             if self.active_protocol == 1:
 		print "ACTIVE PROTOCOL: CSMA"
 	    elif self.active_protocol == 2:
-				print "ACTIVE PROTOCOL: TDMA"
+		print "ACTIVE PROTOCOL: TDMA"
 
     def handle_troca(self,msg):
         # print "DEC: Recebeu comunicado"
