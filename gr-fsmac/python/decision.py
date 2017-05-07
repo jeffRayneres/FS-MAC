@@ -82,6 +82,7 @@ class decision(gr.sync_block):
             tdma_adapt = float(self.calculate_tdma_adaptability());
             # csma_adapt = 10.0;
             # tdma_adapt = 90.0;
+			print "NS: "+str(self.sens1_value)
 
 			if self.active_protocol == 1:
 				print "ACTIVE PROTOCOL: CSMA"
@@ -89,8 +90,7 @@ class decision(gr.sync_block):
 				print "ACTIVE PROTOCOL: TDMA"
 					
             # print "CSMA adaptability " + str(csma_adapt) + "%"
-            # print "TDMA adaptability " + str(tdma_adapt) + "%"
-            # print "NT: "+str(self.sens1_value)
+            # print "TDMA adaptability " + str(tdma_adapt) + "%"            
             # print "LM: "+str(self.sens2_value)
 
             pmt_dict_prot_adapt = pmt.make_dict()
