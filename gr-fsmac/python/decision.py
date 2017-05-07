@@ -82,6 +82,7 @@ class decision(gr.sync_block):
             tdma_adapt = float(self.calculate_tdma_adaptability());
             # csma_adapt = 10.0;
             # tdma_adapt = 90.0;
+	    print ""
             print "NS: "+str(self.sens1_value)
 
 	    if self.active_protocol == 1:
@@ -122,8 +123,10 @@ class decision(gr.sync_block):
             # print "Envindo latencia para exchanger"
             self.message_port_pub(pmt.intern('troca out'), msg)
             if self.active_protocol == 1:
+		print ""
 		print "ACTIVE PROTOCOL: CSMA"
 	    elif self.active_protocol == 2:
+		print ""
 		print "ACTIVE PROTOCOL: TDMA"
 
     def handle_troca(self,msg):
