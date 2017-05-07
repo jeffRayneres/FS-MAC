@@ -227,7 +227,7 @@ public:
         if (pmt::is_uint64(msg)) {
             int command = pmt::to_uint64(msg);
             if (command == EXCHANGE_COMMAND_INFO_SENT) {//stop active protocol 
-//                printf("Recebendo SENT_INFO\n");
+                printf("\nExchanging...\n\n");
                 sending = false;
                 state = EXCHANGE_STATE;
                 pmt::pmt_t exch_command = pmt::from_uint64(EXCHANGE_COMMAND_STOP);
@@ -244,7 +244,8 @@ public:
                 pmt::pmt_t active_prot_info_dec = pmt::from_uint64(active_protocol);
 //                pmt::print(active_prot_info_dec);
                 message_port_pub(pmt::mp("dec out"), active_prot_info_dec);
-//                printf("EXCH: Enviou comunicado ao módulo de Decisão\n");
+//              printf("EXCH: Enviou comunicado ao módulo de Decisão\n");
+				printf("New protocol activated!\n\n");
             }
         } else if (pmt::is_dict(msg)) {//start new protocol
 //            printf("EXCH: Recebeu fila para repassar\n");
