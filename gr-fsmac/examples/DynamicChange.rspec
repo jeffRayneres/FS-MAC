@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<rspec xmlns="http://www.geni.net/resources/rspec/3" type="request" generated_by="jFed RSpec Editor" generated="2017-05-06T16:11:16.486-03:00" xmlns:emulab="http://www.protogeni.net/resources/rspec/ext/emulab/1" xmlns:delay="http://www.protogeni.net/resources/rspec/ext/delay/1" xmlns:jfed-command="http://jfed.iminds.be/rspec/ext/jfed-command/1" xmlns:client="http://www.protogeni.net/resources/rspec/ext/client/1" xmlns:jfed-ssh-keys="http://jfed.iminds.be/rspec/ext/jfed-ssh-keys/1" xmlns:jfed="http://jfed.iminds.be/rspec/ext/jfed/1" xmlns:sharedvlan="http://www.protogeni.net/resources/rspec/ext/shared-vlan/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd ">
+  <node client_id="Station1" exclusive="true" component_manager_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am" component_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am+node+14">
+    <sliver_type name="usrp-vm"/>
+    <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="155.0" y="117.0"/>
+  </node>
+  <node client_id="Station2" exclusive="true" component_manager_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am" component_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am+node+15">
+    <sliver_type name="usrp-vm"/>
+    <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="310.0" y="111.0"/>
+  </node>
+  <node client_id="Station3" exclusive="true" component_manager_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am" component_id="urn:publicid:IDN+futebol.dcc.ufmg.br+authority+am+node+16">
+    <sliver_type name="usrp-vm"/>
+    <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="232.5" y="203.5"/>
+  </node>
+</rspec>
